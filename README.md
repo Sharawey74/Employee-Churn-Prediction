@@ -1,5 +1,5 @@
 # AI-Project
-# Predict-Employee-Turnover-with-scikit-learn
+# Predict-Employee-Turnover
 ##### project on Predict Employee Churn with Decision Trees and Random Forests is divided into the following tasks:
 ### Task 1:Import Libraries
     Imported essential modules and helper functions from NumPy, Matplotlib, and scikit-learn.
