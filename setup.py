@@ -1,0 +1,36 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="customer-churn-prediction",
+    version="1.0.0",
+    description="Machine Learning Pipeline for Customer Churn Prediction",
+    author="Sharawey74",
+    author_email="",
+    packages=find_packages(),
+    install_requires=[
+        "pandas>=1.5.0",
+        "numpy>=1.23.0",
+        "scipy>=1.9.0",
+        "scikit-learn>=1.1.0",
+        "imbalanced-learn>=0.9.0",
+        "xgboost>=1.6.0",
+        "matplotlib>=3.5.0",
+        "seaborn>=0.11.0",
+        "plotly>=5.10.0",
+        "jupyterlab>=3.4.0",
+        "ipywidgets>=8.0.0",
+        "tqdm>=4.64.0",
+        "joblib>=1.1.0",
+        "optuna>=3.0.0",
+        "shap>=0.41.0",
+    ],
+    python_requires=">=3.8",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+    ],
+)
