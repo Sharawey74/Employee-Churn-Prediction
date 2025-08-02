@@ -20,7 +20,7 @@ from optuna.samplers import TPESampler
 import warnings
 warnings.filterwarnings('ignore')
 
-from config import MODEL_CONFIG, CV_CONFIG, MODELS_DIR
+from .config import MODEL_CONFIG, CV_CONFIG, MODELS_DIR
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -428,18 +428,254 @@ class ModelTrainer:
                 best_model_name = max(self.cv_results.keys(), key=lambda k: self.cv_results[k])
                 best_model = self.trained_models[best_model_name]
                 
-                filename = f"{best_model_name}_model.pkl"
+                filename = f"best_model_{best_model_name}.pkl"
                 filepath = MODELS_DIR / filename
                 joblib.dump(best_model, filepath)
-                logger.info(f"Saved {best_model_name} to {filepath}")
-        logger.info("Model saving completed")
-        logger.info("All models saved successfully")
-        print("Models saved successfully.")
-        print(f"Models saved to: {MODELS_DIR}")
-        print(f"Best parameters saved to: {MODELS_DIR / 'best_parameters.pkl'}")
-        print("Training summary printed to console.")
-        print("Training completed successfully.")
-        print("You can now proceed to evaluate the models or use them for predictions.")
-        print("="*80)
-        print("Thank you for using the Model Trainer!")
+                logger.info(f"Saved best model ({best_model_name}) to {filepath}")
+                
+                # Save best parameters for the best model
+                best_params_filepath = MODELS_DIR / f"best_params_{best_model_name}.pkl"
+                joblib.dump(self.best_params[best_model_name], best_params_filepath)
+                logger.info(f"Saved best parameters for {best_model_name} to {best_params_filepath}")
+    
+    def load_model(self, model_name: str) -> Any:
+        """
+        Load a trained model from disk
         
+        Args:
+            model_name: Name of the model to load
+            
+        Returns:
+            Loaded model
+        """
+        filename = f"{model_name}_model.pkl"
+        filepath = MODELS_DIR / filename
+        
+        if not filepath.exists():
+            raise FileNotFoundError(f"Model file not found: {filepath}")
+        
+        model = joblib.load(filepath)
+        logger.info(f"Loaded model {model_name} from {filepath}")
+        return model
+    
+    def load_best_parameters(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Load best parameters from disk
+        
+        Returns:
+            Dictionary of best parameters for all models
+        """
+        params_filepath = MODELS_DIR / "best_parameters.pkl"
+        
+        if not params_filepath.exists():
+            raise FileNotFoundError(f"Parameters file not found: {params_filepath}")
+        
+        best_params = joblib.load(params_filepath)
+        logger.info(f"Loaded best parameters from {params_filepath}")
+        return best_params
+    
+    def get_feature_importance(self, model_name: str, feature_names: List[str] = None) -> pd.DataFrame:
+        """
+        Get feature importance for tree-based models
+        
+        Args:
+            model_name: Name of the model
+            feature_names: Names of features
+            
+        Returns:
+            DataFrame with feature importance
+        """
+        if model_name not in self.trained_models:
+            raise ValueError(f"Model {model_name} not found in trained models")
+        
+        model = self.trained_models[model_name]
+        
+        # Check if model has feature_importances_ attribute
+        if not hasattr(model, 'feature_importances_'):
+            raise ValueError(f"Model {model_name} does not support feature importance")
+        
+        importance = model.feature_importances_
+        
+        if feature_names is None:
+            feature_names = [f"feature_{i}" for i in range(len(importance))]
+        
+        importance_df = pd.DataFrame({
+            'feature': feature_names,
+            'importance': importance
+        }).sort_values('importance', ascending=False)
+        
+        return importance_df
+    
+    def compare_models(self) -> pd.DataFrame:
+        """
+        Compare performance of all trained models
+        
+        Returns:
+            DataFrame with model comparison
+        """
+        if not self.cv_results:
+            raise ValueError("No trained models to compare")
+        
+        comparison_data = []
+        for model_name, cv_score in self.cv_results.items():
+            comparison_data.append({
+                'model': model_name,
+                'cv_score': cv_score,
+                'rank': 0  # Will be filled after sorting
+            })
+        
+        comparison_df = pd.DataFrame(comparison_data)
+        comparison_df = comparison_df.sort_values('cv_score', ascending=False)
+        comparison_df['rank'] = range(1, len(comparison_df) + 1)
+        
+        return comparison_df
+    
+    def get_model_summary(self) -> Dict[str, Any]:
+        """
+        Get summary of all trained models
+        
+        Returns:
+            Dictionary with model summary information
+        """
+        if not self.trained_models:
+            return {"message": "No models trained yet"}
+        
+        summary = {
+            "total_models": len(self.trained_models),
+            "models_trained": list(self.trained_models.keys()),
+            "best_model": max(self.cv_results.keys(), key=lambda k: self.cv_results[k]) if self.cv_results else None,
+            "best_score": max(self.cv_results.values()) if self.cv_results else None,
+            "cv_results": self.cv_results.copy(),
+            "model_types": {}
+        }
+        
+        # Add model type information
+        for model_name, model in self.trained_models.items():
+            summary["model_types"][model_name] = type(model).__name__
+        
+        return summary
+    
+    def predict(self, model_name: str, X: np.ndarray) -> np.ndarray:
+        """
+        Make predictions using a trained model
+        
+        Args:
+            model_name: Name of the model
+            X: Features for prediction
+            
+        Returns:
+            Predictions
+        """
+        if model_name not in self.trained_models:
+            raise ValueError(f"Model {model_name} not found in trained models")
+        
+        model = self.trained_models[model_name]
+        predictions = model.predict(X)
+        
+        logger.info(f"Made predictions using {model_name}")
+        return predictions
+    
+    def predict_proba(self, model_name: str, X: np.ndarray) -> np.ndarray:
+        """
+        Get prediction probabilities using a trained model
+        
+        Args:
+            model_name: Name of the model
+            X: Features for prediction
+            
+        Returns:
+            Prediction probabilities
+        """
+        if model_name not in self.trained_models:
+            raise ValueError(f"Model {model_name} not found in trained models")
+        
+        model = self.trained_models[model_name]
+        
+        if not hasattr(model, 'predict_proba'):
+            raise ValueError(f"Model {model_name} does not support probability prediction")
+        
+        probabilities = model.predict_proba(X)
+        
+        logger.info(f"Generated prediction probabilities using {model_name}")
+        return probabilities
+
+
+# Utility functions for model training
+def train_single_model(model_name: str, X: np.ndarray, y: np.ndarray, 
+                      config: Dict[str, Any] = None) -> Dict[str, Any]:
+    """
+    Convenience function to train a single model
+    
+    Args:
+        model_name: Name of the model to train
+        X: Training features
+        y: Training target
+        config: Configuration dictionary
+        
+    Returns:
+        Training results
+    """
+    trainer = ModelTrainer(config)
+    results = trainer.train_model_with_cv(model_name, X, y)
+    return results
+
+
+def train_and_compare_models(X: np.ndarray, y: np.ndarray, 
+                           model_names: List[str] = None,
+                           optimization_method: str = 'random_search',
+                           config: Dict[str, Any] = None) -> Tuple[ModelTrainer, Dict[str, Dict[str, Any]]]:
+    """
+    Convenience function to train multiple models and compare them
+    
+    Args:
+        X: Training features
+        y: Training target
+        model_names: List of model names to train
+        optimization_method: Hyperparameter optimization method
+        config: Configuration dictionary
+        
+    Returns:
+        Tuple of (trainer instance, training results)
+    """
+    trainer = ModelTrainer(config)
+    
+    if model_names:
+        # Train only specified models
+        results = {}
+        for model_name in model_names:
+            if model_name in trainer.config['models']:
+                result = trainer.train_model_with_cv(model_name, X, y, optimization_method)
+                results[model_name] = result
+            else:
+                logger.warning(f"Model {model_name} not found in configuration")
+    else:
+        # Train all models
+        results = trainer.train_all_models(X, y, optimization_method)
+    
+    return trainer, results
+
+
+if __name__ == "__main__":
+    """
+    Example usage of ModelTrainer
+    """
+    print("ModelTrainer Module")
+    print("This module provides comprehensive model training capabilities")
+    print("Import this module and use the ModelTrainer class or utility functions")
+    
+    # Example configuration
+    example_config = {
+        'models': {
+            'random_forest': {
+                'class': 'RandomForestClassifier',
+                'params': {'random_state': 42, 'n_jobs': -1},
+                'hyperparameters': {
+                    'n_estimators': [100, 200],
+                    'max_depth': [10, 20, None]
+                }
+            }
+        }
+    }
+    
+    print(f"\nExample configuration: {example_config}")
+    print("\nTo use this module, import ModelTrainer and call its methods with your data.")

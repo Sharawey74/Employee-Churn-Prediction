@@ -15,7 +15,7 @@ from typing import Dict, List, Tuple, Optional, Any
 from scipy import stats
 from sklearn.preprocessing import LabelEncoder
 
-from config import VIZ_CONFIG, RESULTS_DIR
+from .config import VIZ_CONFIG, RESULTS_DIR
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

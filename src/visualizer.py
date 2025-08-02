@@ -18,7 +18,7 @@ from typing import Dict, List, Tuple, Optional, Any, Union
 import warnings
 warnings.filterwarnings('ignore')
 
-from config import VIZ_CONFIG, RESULTS_DIR
+from .config import VIZ_CONFIG, RESULTS_DIR
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

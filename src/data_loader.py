@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
 from sklearn.model_selection import train_test_split
 
-from config import DATA_CONFIG, RAW_DATA_DIR, PROCESSED_DATA_DIR
+from .config import DATA_CONFIG, RAW_DATA_DIR, PROCESSED_DATA_DIR
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

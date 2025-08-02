@@ -15,7 +15,7 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.combine import SMOTEENN
 import joblib
 
-from config import FEATURE_CONFIG, IMBALANCE_CONFIG, MODELS_DIR
+from .config import FEATURE_CONFIG, IMBALANCE_CONFIG, MODELS_DIR
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
