@@ -1,0 +1,119 @@
+================================================================================
+MODEL EVALUATION REPORT
+================================================================================
+
+MODEL: LOGISTIC_REGRESSION
+----------------------------------------
+
+CLASSIFICATION METRICS:
+  Accuracy:     0.8161
+  Precision:    0.3818
+  Recall:       0.1050
+  F1-Score:     0.1647
+  Matthews CC:  0.1236
+  ROC-AUC:      0.8411
+  Avg Precision: 0.4193
+  Log Loss:     0.3661
+
+CONFUSION MATRIX:
+  True Negatives:  1849
+  False Positives: 68
+  False Negatives: 358
+  True Positives:  42
+
+OVERFITTING ANALYSIS:
+  Training Accuracy: 0.8206
+  Test Accuracy:     0.8161
+  Overfitting Score: 0.0045
+
+--------------------------------------------------------------------------------
+
+MODEL: RANDOM_FOREST
+----------------------------------------
+
+CLASSIFICATION METRICS:
+  Accuracy:     0.9819
+  Precision:    0.9945
+  Recall:       0.9000
+  F1-Score:     0.9449
+  Matthews CC:  0.9357
+  ROC-AUC:      0.9821
+  Avg Precision: 0.9668
+  Log Loss:     0.0825
+
+CONFUSION MATRIX:
+  True Negatives:  1915
+  False Positives: 2
+  False Negatives: 40
+  True Positives:  360
+
+OVERFITTING ANALYSIS:
+  Training Accuracy: 0.9840
+  Test Accuracy:     0.9819
+  Overfitting Score: 0.0022
+
+--------------------------------------------------------------------------------
+
+MODEL: GRADIENT_BOOSTING
+----------------------------------------
+
+CLASSIFICATION METRICS:
+  Accuracy:     0.9797
+  Precision:    0.9584
+  Recall:       0.9225
+  F1-Score:     0.9401
+  Matthews CC:  0.9282
+  ROC-AUC:      0.9849
+  Avg Precision: 0.9703
+  Log Loss:     0.0747
+
+CONFUSION MATRIX:
+  True Negatives:  1901
+  False Positives: 16
+  False Negatives: 31
+  True Positives:  369
+
+OVERFITTING ANALYSIS:
+  Training Accuracy: 0.9849
+  Test Accuracy:     0.9797
+  Overfitting Score: 0.0052
+
+--------------------------------------------------------------------------------
+
+MODEL: XGBOOST
+----------------------------------------
+
+CLASSIFICATION METRICS:
+  Accuracy:     0.9832
+  Precision:    0.9839
+  Recall:       0.9175
+  F1-Score:     0.9495
+  Matthews CC:  0.9403
+  ROC-AUC:      0.9872
+  Avg Precision: 0.9725
+  Log Loss:     0.0688
+
+CONFUSION MATRIX:
+  True Negatives:  1911
+  False Positives: 6
+  False Negatives: 33
+  True Positives:  367
+
+OVERFITTING ANALYSIS:
+  Training Accuracy: 0.9860
+  Test Accuracy:     0.9832
+  Overfitting Score: 0.0028
+
+--------------------------------------------------------------------------------
+
+MODEL COMPARISON
+========================================
+
+BEST MODELS BY METRIC:
+  Best by F1-Score:  xgboost
+  Best by Accuracy:  xgboost
+  Best by ROC-AUC:   xgboost
+
+PERFORMANCE STATISTICS:
+  Mean Accuracy: 0.9402 ± 0.0827
+  Mean F1-Score: 0.7498 ± 0.3901

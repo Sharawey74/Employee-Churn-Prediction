@@ -501,7 +501,7 @@ class ModelEvaluator:
         report_lines.append("="*80)
         report_lines.append("MODEL EVALUATION REPORT")
         report_lines.append("="*80)
-        report_lines.append()
+        report_lines.append("")
         
         if model_name:
             # Single model report
@@ -514,7 +514,7 @@ class ModelEvaluator:
             for model_name in self.evaluation_results.keys():
                 self._add_single_model_report(report_lines, model_name)
                 report_lines.append("-" * 80)
-                report_lines.append()
+                report_lines.append("")
             
             # Add comparison section
             if self.comparison_results:
@@ -540,7 +540,7 @@ class ModelEvaluator:
         
         report_lines.append(f"MODEL: {model_name.upper()}")
         report_lines.append("-" * 40)
-        report_lines.append()
+        report_lines.append("")
         
         # Basic metrics
         report_lines.append("CLASSIFICATION METRICS:")
@@ -555,7 +555,7 @@ class ModelEvaluator:
             report_lines.append(f"  Avg Precision: {metrics['average_precision']:.4f}")
             report_lines.append(f"  Log Loss:     {metrics['log_loss']:.4f}")
         
-        report_lines.append()
+        report_lines.append("")
         
         # Confusion matrix
         cm_data = metrics['confusion_matrix']
@@ -564,7 +564,7 @@ class ModelEvaluator:
         report_lines.append(f"  False Positives: {cm_data['fp']}")
         report_lines.append(f"  False Negatives: {cm_data['fn']}")
         report_lines.append(f"  True Positives:  {cm_data['tp']}")
-        report_lines.append()
+        report_lines.append("")
         
         # Training vs Test (if available)
         if 'training_accuracy' in metrics:
@@ -572,13 +572,13 @@ class ModelEvaluator:
             report_lines.append(f"  Training Accuracy: {metrics['training_accuracy']:.4f}")
             report_lines.append(f"  Test Accuracy:     {metrics['accuracy']:.4f}")
             report_lines.append(f"  Overfitting Score: {metrics['overfitting_score']:.4f}")
-            report_lines.append()
+            report_lines.append("")
     
     def _add_comparison_report(self, report_lines: List[str]) -> None:
         """Add model comparison to report"""
         report_lines.append("MODEL COMPARISON")
         report_lines.append("="*40)
-        report_lines.append()
+        report_lines.append("")
         
         if 'best_model' in self.comparison_results:
             best_models = self.comparison_results['best_model']
@@ -587,14 +587,14 @@ class ModelEvaluator:
             report_lines.append(f"  Best by Accuracy:  {best_models['by_accuracy']}")
             if best_models['by_roc_auc']:
                 report_lines.append(f"  Best by ROC-AUC:   {best_models['by_roc_auc']}")
-            report_lines.append()
+            report_lines.append("")
         
         if 'summary_stats' in self.comparison_results:
             stats = self.comparison_results['summary_stats']
             report_lines.append("PERFORMANCE STATISTICS:")
             report_lines.append(f"  Mean Accuracy: {stats['mean_accuracy']:.4f} ± {stats['std_accuracy']:.4f}")
             report_lines.append(f"  Mean F1-Score: {stats['mean_f1']:.4f} ± {stats['std_f1']:.4f}")
-            report_lines.append()
+            report_lines.append("")
     
     def save_results(self, filename: str = "evaluation_results.json") -> None:
         """
