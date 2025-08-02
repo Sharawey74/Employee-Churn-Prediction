@@ -41,6 +41,66 @@ class FeatureEngineer:
         
         logger.info("FeatureEngineer initialized")
     
+    def prepare_features_and_target(self, data: pd.DataFrame, target_column: str) -> Tuple[pd.DataFrame, pd.Series]:
+        """
+        Prepare features and target from raw data with proper preprocessing
+        
+        Args:
+            data: Raw DataFrame
+            target_column: Name of the target column
+            
+        Returns:
+            Tuple of (processed features DataFrame, target Series)
+        """
+        logger.info(f"Preparing features and target from data with shape: {data.shape}")
+        
+        # Separate features and target
+        if target_column not in data.columns:
+            raise ValueError(f"Target column '{target_column}' not found in data")
+        
+        # Create features DataFrame (all columns except target)
+        X = data.drop(columns=[target_column]).copy()
+        
+        # Create target Series
+        y = data[target_column].copy()
+        
+        logger.info(f"Raw features shape: {X.shape}")
+        logger.info(f"Target shape: {y.shape}")
+        logger.info(f"Target value counts: {y.value_counts().to_dict()}")
+        
+        # Identify categorical and numerical columns
+        categorical_columns = X.select_dtypes(include=['object', 'category']).columns.tolist()
+        numerical_columns = X.select_dtypes(include=[np.number]).columns.tolist()
+        
+        logger.info(f"Categorical columns: {categorical_columns}")
+        logger.info(f"Numerical columns: {numerical_columns}")
+        
+        # Handle missing values
+        if X.isnull().any().any():
+            logger.info("Handling missing values...")
+            # Fill numerical missing values with median
+            for col in numerical_columns:
+                if X[col].isnull().any():
+                    X[col].fillna(X[col].median(), inplace=True)
+            
+            # Fill categorical missing values with mode
+            for col in categorical_columns:
+                if X[col].isnull().any():
+                    X[col].fillna(X[col].mode()[0], inplace=True)
+        
+        # Encode categorical variables using one-hot encoding
+        if categorical_columns:
+            logger.info(f"Encoding categorical columns: {categorical_columns}")
+            X_encoded = pd.get_dummies(X, columns=categorical_columns, drop_first=True)
+            logger.info(f"Features shape after encoding: {X_encoded.shape}")
+        else:
+            X_encoded = X
+        
+        logger.info(f"Final features shape: {X_encoded.shape}")
+        logger.info(f"Feature columns: {list(X_encoded.columns)}")
+        
+        return X_encoded, y
+    
     def create_new_features(self, data: pd.DataFrame) -> pd.DataFrame:
         """
         Create new features from existing ones

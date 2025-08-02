@@ -21,8 +21,8 @@ for directory in [DATA_DIR, RAW_DATA_DIR, PROCESSED_DATA_DIR, MODELS_DIR, RESULT
 
 # Data Configuration
 DATA_CONFIG = {
-    'target_column': 'Churn',
-    'customer_id_column': 'customerID',
+    'target_column': 'quit',  # Changed from 'Churn' to 'quit' for employee data
+    'customer_id_column': None,  # No customer ID in employee data
     'test_size': 0.2,
     'validation_size': 0.2,
     'random_state': 42,
@@ -32,17 +32,15 @@ DATA_CONFIG = {
 # Feature Engineering Configuration
 FEATURE_CONFIG = {
     'numerical_features': [
-        'tenure', 'MonthlyCharges', 'TotalCharges'
+        'satisfaction_level', 'last_evaluation', 'number_project', 
+        'average_montly_hours', 'time_spend_company', 'Work_accident', 
+        'promotion_last_5years'
     ],
     'categorical_features': [
-        'gender', 'SeniorCitizen', 'Partner', 'Dependents',
-        'PhoneService', 'MultipleLines', 'InternetService',
-        'OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
-        'TechSupport', 'StreamingTV', 'StreamingMovies',
-        'Contract', 'PaperlessBilling', 'PaymentMethod'
+        'department', 'salary'
     ],
     'ordinal_features': {
-        'Contract': ['Month-to-month', 'One year', 'Two year']
+        'salary': ['low', 'medium', 'high']
     },
     'scaling_method': 'StandardScaler',
     'encoding_method': 'OneHotEncoder'

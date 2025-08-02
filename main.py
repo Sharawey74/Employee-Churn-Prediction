@@ -57,11 +57,20 @@ def load_and_explore_data(file_path: Optional[str] = None) -> tuple:
     data_loader = DataLoader()
     
     # Load data
-    if file_path:
-        raw_data = data_loader.load_raw_data(file_path)
-    else:
-        # Try to find data in raw directory
-        raw_data = data_loader.load_raw_data()
+    try:
+        if file_path and Path(file_path).exists():
+            raw_data = data_loader.load_raw_data(file_path)
+        else:
+            # Try to find data in raw directory
+            raw_data = data_loader.load_raw_data()
+    except FileNotFoundError as e:
+        logging.error(f"Data loading failed: {str(e)}")
+        logging.info("Available files in data/raw directory:")
+        raw_dir = Path("data/raw")
+        if raw_dir.exists():
+            for file in raw_dir.glob("*.csv"):
+                logging.info(f"  - {file}")
+        raise
     
     logging.info(f"Loaded data with shape: {raw_data.shape}")
     
@@ -101,6 +110,12 @@ def engineer_features(raw_data: pd.DataFrame) -> tuple:
         raw_data, 
         target_column=DATA_CONFIG['target_column']
     )
+    
+    # Convert boolean columns to integers to ensure proper numpy array conversion
+    bool_columns = X.select_dtypes(include=['bool']).columns
+    if len(bool_columns) > 0:
+        logging.info(f"Converting boolean columns to integers: {list(bool_columns)}")
+        X[bool_columns] = X[bool_columns].astype(int)
     
     logging.info(f"Features shape: {X.shape}")
     logging.info(f"Target shape: {y.shape}")
@@ -228,7 +243,9 @@ def main():
     """Main execution function"""
     # Set up argument parser
     parser = argparse.ArgumentParser(description='Customer Churn Prediction ML Pipeline')
-    parser.add_argument('--data-path', type=str, help='Path to the dataset file')
+    parser.add_argument('--data-path', type=str, 
+                       default='data/raw/employee_data.csv',
+                       help='Path to the dataset file (default: data/raw/employee_data.csv)')
     parser.add_argument('--optimization', type=str, default='random_search',
                        choices=['grid_search', 'random_search', 'optuna', 'default'],
                        help='Hyperparameter optimization method')

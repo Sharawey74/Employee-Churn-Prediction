@@ -13,7 +13,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.model_selection import (GridSearchCV, RandomizedSearchCV, 
                                    cross_val_score, StratifiedKFold)
-from sklearn.metrics import make_scorer, roc_auc_score
+from sklearn.metrics import roc_auc_score
 from xgboost import XGBClassifier
 import optuna
 from optuna.samplers import TPESampler
@@ -102,8 +102,8 @@ class ModelTrainer:
             random_state=self.cv_config['random_state']
         )
         
-        # Set up scorer
-        scorer = make_scorer(roc_auc_score, needs_proba=True)
+        # Set up scorer - use 'roc_auc' string instead of make_scorer with needs_proba
+        scorer = 'roc_auc'
         
         # Perform grid search
         grid_search = GridSearchCV(
@@ -150,8 +150,8 @@ class ModelTrainer:
             random_state=self.cv_config['random_state']
         )
         
-        # Set up scorer
-        scorer = make_scorer(roc_auc_score, needs_proba=True)
+        # Set up scorer - use 'roc_auc' string instead of make_scorer with needs_proba
+        scorer = 'roc_auc'
         
         # Perform randomized search
         random_search = RandomizedSearchCV(

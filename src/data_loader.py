@@ -45,6 +45,7 @@ class DataLoader:
         if file_path is None:
             # Look for common churn dataset names
             possible_files = [
+                RAW_DATA_DIR / "employee_data.csv",
                 RAW_DATA_DIR / "customer_churn.csv",
                 RAW_DATA_DIR / "telco_customer_churn.csv",
                 RAW_DATA_DIR / "churn_data.csv",
