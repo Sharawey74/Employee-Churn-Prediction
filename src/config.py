@@ -14,9 +14,10 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 MODELS_DIR = PROJECT_ROOT / "models"
 RESULTS_DIR = PROJECT_ROOT / "results"
 NOTEBOOKS_DIR = PROJECT_ROOT / "notebooks"
+JSON_DIR = PROJECT_ROOT / "json"  # New directory for JSON files
 
 # Ensure directories exist
-for directory in [DATA_DIR, RAW_DATA_DIR, PROCESSED_DATA_DIR, MODELS_DIR, RESULTS_DIR]:
+for directory in [DATA_DIR, RAW_DATA_DIR, PROCESSED_DATA_DIR, MODELS_DIR, RESULTS_DIR, JSON_DIR]:
     directory.mkdir(parents=True, exist_ok=True)
 
 # Data Configuration
@@ -54,21 +55,9 @@ IMBALANCE_CONFIG = {
     'random_state': 42
 }
 
-# Model Configuration
+# Model Configuration - RESTRICTED TO RANDOM FOREST AND XGBOOST ONLY
 MODEL_CONFIG = {
     'models': {
-        'logistic_regression': {
-            'class': 'LogisticRegression',
-            'params': {
-                'random_state': 42,
-                'max_iter': 1000
-            },
-            'hyperparameters': {
-                'C': [0.1, 1, 10, 100],
-                'penalty': ['l1', 'l2'],
-                'solver': ['liblinear', 'saga']
-            }
-        },
         'random_forest': {
             'class': 'RandomForestClassifier',
             'params': {
@@ -76,46 +65,39 @@ MODEL_CONFIG = {
                 'n_jobs': -1
             },
             'hyperparameters': {
-                'n_estimators': [100, 200, 300],
-                'max_depth': [10, 20, 30, None],
-                'min_samples_split': [2, 5, 10],
-                'min_samples_leaf': [1, 2, 4]
-            }
-        },
-        'gradient_boosting': {
-            'class': 'GradientBoostingClassifier',
-            'params': {
-                'random_state': 42
-            },
-            'hyperparameters': {
-                'n_estimators': [100, 200, 300],
-                'learning_rate': [0.01, 0.1, 0.2],
-                'max_depth': [3, 5, 7],
-                'subsample': [0.8, 0.9, 1.0]
+                'n_estimators': [100, 200, 300, 400, 500],
+                'max_depth': [10, 20, 30, 40, None],
+                'min_samples_split': [2, 5, 10, 15],
+                'min_samples_leaf': [1, 2, 4, 8],
+                'max_features': ['sqrt', 'log2', None],
+                'bootstrap': [True, False]
             }
         },
         'xgboost': {
             'class': 'XGBClassifier',
             'params': {
                 'random_state': 42,
-                'eval_metric': 'logloss'
+                'eval_metric': 'logloss',
+                'n_jobs': -1
             },
             'hyperparameters': {
-                'n_estimators': [100, 200, 300],
-                'learning_rate': [0.01, 0.1, 0.2],
-                'max_depth': [3, 5, 7],
-                'subsample': [0.8, 0.9, 1.0],
-                'colsample_bytree': [0.8, 0.9, 1.0]
+                'n_estimators': [100, 200, 300, 400, 500],
+                'learning_rate': [0.01, 0.05, 0.1, 0.15, 0.2],
+                'max_depth': [3, 4, 5, 6, 7, 8],
+                'subsample': [0.8, 0.85, 0.9, 0.95, 1.0],
+                'colsample_bytree': [0.8, 0.85, 0.9, 0.95, 1.0],
+                'reg_alpha': [0, 0.01, 0.1, 0.5, 1.0],
+                'reg_lambda': [0, 0.01, 0.1, 0.5, 1.0]
             }
         }
     }
 }
 
-# Cross-Validation Configuration
+# Cross-Validation Configuration - Optimized for RF and XGBoost
 CV_CONFIG = {
     'cv_folds': 5,
     'scoring': 'roc_auc',
-    'n_iter': 50,  # for RandomizedSearchCV
+    'n_iter': 100,  # Increased for better hyperparameter search
     'random_state': 42,
     'n_jobs': -1
 }

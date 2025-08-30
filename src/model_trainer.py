@@ -1,26 +1,26 @@
 """
-Model Training Module for Customer Churn Prediction
-Handles training, hyperparameter tuning, and cross-validation
+Model Training Module - RESTRICTED TO RANDOM FOREST AND XGBOOST
+Handles training, hyperparameter tuning, and cross-validation for RF and XGBoost only
 """
 
 import pandas as pd
 import numpy as np
 import logging
+import json
 from typing import Dict, List, Tuple, Optional, Any, Union
 import joblib
 import time
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import (GridSearchCV, RandomizedSearchCV, 
                                    cross_val_score, StratifiedKFold)
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, f1_score
 from xgboost import XGBClassifier
 import optuna
 from optuna.samplers import TPESampler
 import warnings
 warnings.filterwarnings('ignore')
 
-from .config import MODEL_CONFIG, CV_CONFIG, MODELS_DIR
+from .config import MODEL_CONFIG, CV_CONFIG, MODELS_DIR, JSON_DIR
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -57,6 +57,10 @@ class ModelTrainer:
         Returns:
             Model instance
         """
+        # Check if model is supported FIRST
+        if model_name not in self.config['models']:
+            raise ValueError(f"Unsupported model: {model_name}. Only RandomForest and XGBoost are supported.")
+        
         model_config = self.config['models'][model_name]
         model_class = model_config['class']
         default_params = model_config['params'].copy()
@@ -64,16 +68,14 @@ class ModelTrainer:
         if params:
             default_params.update(params)
         
-        # Map class names to actual classes
+        # Map class names to actual classes - ONLY RF AND XGBOOST
         model_classes = {
-            'LogisticRegression': LogisticRegression,
             'RandomForestClassifier': RandomForestClassifier,
-            'GradientBoostingClassifier': GradientBoostingClassifier,
             'XGBClassifier': XGBClassifier
         }
         
         if model_class not in model_classes:
-            raise ValueError(f"Unknown model class: {model_class}")
+            raise ValueError(f"Unsupported model class: {model_class}. Only RandomForest and XGBoost are supported.")
         
         return model_classes[model_class](**default_params)
     
@@ -192,28 +194,15 @@ class ModelTrainer:
         logger.info(f"Starting Optuna optimization for {model_name} with {n_trials} trials")
         
         def objective(trial):
-            # Define parameter space based on model
-            if model_name == 'logistic_regression':
-                params = {
-                    'C': trial.suggest_float('C', 0.1, 100, log=True),
-                    'penalty': trial.suggest_categorical('penalty', ['l1', 'l2']),
-                    'solver': trial.suggest_categorical('solver', ['liblinear', 'saga'])
-                }
-            elif model_name == 'random_forest':
+            # Define parameter space - ONLY FOR RF AND XGBOOST
+            if model_name == 'random_forest':
                 params = {
                     'n_estimators': trial.suggest_int('n_estimators', 100, 500),
                     'max_depth': trial.suggest_int('max_depth', 10, 50),
                     'min_samples_split': trial.suggest_int('min_samples_split', 2, 20),
                     'min_samples_leaf': trial.suggest_int('min_samples_leaf', 1, 10),
-                    'max_features': trial.suggest_categorical('max_features', ['sqrt', 'log2'])
-                }
-            elif model_name == 'gradient_boosting':
-                params = {
-                    'n_estimators': trial.suggest_int('n_estimators', 100, 500),
-                    'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.3),
-                    'max_depth': trial.suggest_int('max_depth', 3, 10),
-                    'subsample': trial.suggest_float('subsample', 0.8, 1.0),
-                    'min_samples_split': trial.suggest_int('min_samples_split', 2, 20)
+                    'max_features': trial.suggest_categorical('max_features', ['sqrt', 'log2', None]),
+                    'bootstrap': trial.suggest_categorical('bootstrap', [True, False])
                 }
             elif model_name == 'xgboost':
                 params = {
@@ -226,7 +215,7 @@ class ModelTrainer:
                     'reg_lambda': trial.suggest_float('reg_lambda', 0, 1)
                 }
             else:
-                raise ValueError(f"Optuna optimization not supported for {model_name}")
+                raise ValueError(f"Optuna optimization only supported for 'random_forest' and 'xgboost', got: {model_name}")
             
             # Create model with suggested parameters
             model = self.get_model_instance(model_name, params)
@@ -554,6 +543,102 @@ class ModelTrainer:
             summary["model_types"][model_name] = type(model).__name__
         
         return summary
+    
+    def save_results_to_json(self, X_test: np.ndarray = None, y_test: np.ndarray = None) -> None:
+        """
+        Save comprehensive training results to JSON files
+        
+        Args:
+            X_test: Test features for additional evaluation
+            y_test: Test target for additional evaluation
+        """
+        JSON_DIR.mkdir(exist_ok=True)
+        
+        # Save model comparison
+        comparison_df = self.compare_models()
+        comparison_dict = comparison_df.to_dict('records')
+        
+        with open(JSON_DIR / "model_comparison.json", 'w') as f:
+            json.dump(comparison_dict, f, indent=2)
+        
+        # Save best parameters
+        with open(JSON_DIR / "best_parameters.json", 'w') as f:
+            json.dump(self.best_params, f, indent=2)
+        
+        # Save CV results
+        with open(JSON_DIR / "cv_results.json", 'w') as f:
+            json.dump(self.cv_results, f, indent=2)
+        
+        # Save model summary
+        summary = self.get_model_summary()
+        with open(JSON_DIR / "model_summary.json", 'w') as f:
+            json.dump(summary, f, indent=2, default=str)
+        
+        # Save feature importance for each model
+        for model_name in self.trained_models.keys():
+            if hasattr(self.trained_models[model_name], 'feature_importances_'):
+                try:
+                    importance_df = self.get_feature_importance(model_name)
+                    importance_dict = importance_df.to_dict('records')
+                    
+                    with open(JSON_DIR / f"{model_name}_feature_importance.json", 'w') as f:
+                        json.dump(importance_dict, f, indent=2)
+                except Exception as e:
+                    logger.warning(f"Could not save feature importance for {model_name}: {str(e)}")
+        
+        # If test data provided, evaluate models
+        if X_test is not None and y_test is not None:
+            test_results = {}
+            for model_name, model in self.trained_models.items():
+                try:
+                    y_pred = model.predict(X_test)
+                    y_pred_proba = model.predict_proba(X_test)[:, 1] if hasattr(model, 'predict_proba') else None
+                    
+                    test_metrics = {
+                        'accuracy': float(accuracy_score(y_test, y_pred)),
+                        'precision': float(precision_score(y_test, y_pred, average='weighted')),
+                        'recall': float(recall_score(y_test, y_pred, average='weighted')),
+                        'f1_score': float(f1_score(y_test, y_pred, average='weighted'))
+                    }
+                    
+                    if y_pred_proba is not None:
+                        test_metrics['roc_auc'] = float(roc_auc_score(y_test, y_pred_proba))
+                    
+                    test_results[model_name] = test_metrics
+                    
+                except Exception as e:
+                    logger.warning(f"Could not evaluate {model_name} on test data: {str(e)}")
+                    test_results[model_name] = {"error": str(e)}
+            
+            with open(JSON_DIR / "test_results.json", 'w') as f:
+                json.dump(test_results, f, indent=2)
+        
+        logger.info(f"All JSON results saved to {JSON_DIR}")
+    
+    def identify_best_model(self) -> Tuple[str, Any, Dict[str, float]]:
+        """
+        Identify and return the best performing model
+        
+        Returns:
+            Tuple of (model_name, model_object, performance_metrics)
+        """
+        if not self.cv_results:
+            raise ValueError("No models trained yet")
+        
+        # Find best model by CV score
+        best_model_name = max(self.cv_results.keys(), key=lambda k: self.cv_results[k])
+        best_model = self.trained_models[best_model_name]
+        best_cv_score = self.cv_results[best_model_name]
+        
+        performance_metrics = {
+            'cv_score': best_cv_score,
+            'model_type': type(best_model).__name__,
+            'best_params': self.best_params[best_model_name] if best_model_name in self.best_params else {}
+        }
+        
+        logger.info(f"Best model identified: {best_model_name} with CV score: {best_cv_score:.4f}")
+        
+        return best_model_name, best_model, performance_metrics
     
     def predict(self, model_name: str, X: np.ndarray) -> np.ndarray:
         """

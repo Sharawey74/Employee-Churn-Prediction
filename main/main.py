@@ -240,9 +240,9 @@ def evaluate_models(trainer: ModelTrainer, X_test: pd.DataFrame, y_test: pd.Seri
 
 
 def main():
-    """Main execution function"""
+    """Main execution function - RESTRICTED TO RANDOM FOREST AND XGBOOST"""
     # Set up argument parser
-    parser = argparse.ArgumentParser(description='Customer Churn Prediction ML Pipeline')
+    parser = argparse.ArgumentParser(description='Employee Turnover Prediction - RF & XGBoost Only')
     parser.add_argument('--data-path', type=str, 
                        default='data/raw/employee_data.csv',
                        help='Path to the dataset file (default: data/raw/employee_data.csv)')
@@ -255,8 +255,8 @@ def main():
     parser.add_argument('--skip-eda', action='store_true',
                        help='Skip exploratory data analysis')
     parser.add_argument('--models', nargs='+', 
-                       choices=['logistic_regression', 'random_forest', 'gradient_boosting', 'xgboost'],
-                       help='Specific models to train (default: all)')
+                       choices=['random_forest', 'xgboost'],
+                       help='Specific models to train (default: both RF and XGBoost)')
     
     args = parser.parse_args()
     
@@ -267,7 +267,7 @@ def main():
         # Setup project structure
         setup_project_directories()
         
-        logging.info("🚀 Starting Customer Churn Prediction Pipeline")
+        logging.info("🚀 Starting Employee Turnover Prediction Pipeline - RF & XGBoost Only")
         logging.info(f"Configuration: {args}")
         
         # Step 1: Load and explore data
@@ -276,36 +276,58 @@ def main():
         # Step 2: Feature engineering
         X_train, X_test, y_train, y_test, feature_engineer = engineer_features(raw_data)
         
-        # Step 3: Model training
+        # Step 3: Model training (only RF and XGBoost)
         trainer = train_models(X_train, y_train, args.optimization)
         
-        # Filter models if specified
+        # Filter models if specified (only RF and XGBoost allowed)
         if args.models:
+            allowed_models = ['random_forest', 'xgboost']
+            filtered_models = [m for m in args.models if m in allowed_models]
             trainer.trained_models = {k: v for k, v in trainer.trained_models.items() 
-                                    if k in args.models}
-            logging.info(f"Filtered models to: {list(trainer.trained_models.keys())}")
+                                    if k in filtered_models}
+            logging.info(f"Training only specified models: {list(trainer.trained_models.keys())}")
+        else:
+            logging.info("Training both Random Forest and XGBoost models")
+        
+        # Save JSON results
+        trainer.save_results_to_json(X_test.values, y_test.values)
+        
+        # Identify best model
+        best_model_name, best_model, best_metrics = trainer.identify_best_model()
         
         # Step 4: Model evaluation
         evaluator = evaluate_models(trainer, X_test, y_test, X_train, y_train)
         
         # Final summary
         logging.info("="*50)
-        logging.info("PIPELINE COMPLETED SUCCESSFULLY! 🎉")
+        logging.info("RF & XGBOOST PIPELINE COMPLETED SUCCESSFULLY! 🎉")
         logging.info("="*50)
         
         print("\n" + "="*80)
-        print("FINAL RESULTS SUMMARY")
+        print("RANDOM FOREST & XGBOOST RESULTS SUMMARY")
         print("="*80)
+        
+        # Display best model information
+        print(f"🏆 BEST MODEL: {best_model_name}")
+        print(f"📊 CV Score: {best_metrics['cv_score']:.4f}")
+        print(f"🔧 Model Type: {best_metrics['model_type']}")
+        
+        # Display comparison between RF and XGBoost
+        comparison_df = trainer.compare_models()
+        print("\n📈 MODEL COMPARISON:")
+        for _, row in comparison_df.iterrows():
+            print(f"  {row['rank']}. {row['model']}: {row['cv_score']:.4f}")
         
         if evaluator.comparison_results and 'best_model' in evaluator.comparison_results:
             best_models = evaluator.comparison_results['best_model']
-            print(f"🏆 Best Model by F1-Score: {best_models['by_f1']}")
-            print(f"🎯 Best Model by Accuracy: {best_models['by_accuracy']}")
+            print(f"\n� Best Model by Accuracy: {best_models['by_accuracy']}")
+            print(f"� Best Model by F1-Score: {best_models['by_f1']}")
             if best_models['by_roc_auc']:
                 print(f"📊 Best Model by ROC-AUC: {best_models['by_roc_auc']}")
         
         print(f"\n📁 Results saved to: {RESULTS_DIR}")
         print(f"📁 Models saved to: {MODELS_DIR}")
+        print(f"📄 JSON files saved to: {JSON_DIR}")
         print(f"📊 Visualizations saved to: {RESULTS_DIR / 'figures'}")
         print(f"📋 Reports saved to: {RESULTS_DIR / 'reports'}")
         

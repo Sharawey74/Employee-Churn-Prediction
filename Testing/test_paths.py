@@ -6,6 +6,10 @@ Path Test Script - Verify all reorganized files can import properly
 import sys
 from pathlib import Path
 
+# Add project root to Python path  
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.append(str(PROJECT_ROOT))
+
 def test_imports():
     """Test imports from each reorganized folder"""
     
@@ -14,12 +18,9 @@ def test_imports():
     
     # Test 1: validation folder
     print("\n📁 Testing validation/ folder...")
-    validation_dir = Path(__file__).parent / "validation"
     
     try:
-        sys.path.insert(0, str(Path(__file__).parent))
-        
-        # Simulate what debug_pipeline.py does
+        # Simulate what validation scripts do
         from src.config import DATA_CONFIG
         from src.data_loader import DataLoader
         from src.feature_engineering import FeatureEngineer
@@ -47,6 +48,17 @@ def test_imports():
         
     except ImportError as e:
         print(f"❌ Testing/ imports failed: {e}")
+    
+    # Test 4: validations folder (new location)
+    print("\n📁 Testing validations/ folder...")
+    try:
+        # Test if validations scripts can import project modules
+        from src.config import MODEL_CONFIG
+        from src.model_trainer import ModelTrainer
+        print("✅ validations/ imports work correctly!")
+        
+    except ImportError as e:
+        print(f"❌ validations/ imports failed: {e}")
     
     print("\n🎉 Path verification complete!")
 

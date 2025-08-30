@@ -6,6 +6,7 @@ Path Navigation Demo - Understanding .parent.parent
 from pathlib import Path
 
 def demo_path_navigation():
+    """Demo path navigation concepts"""
     print("🧭 Path Navigation Demo")
     print("="*50)
     

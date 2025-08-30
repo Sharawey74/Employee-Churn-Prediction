@@ -1,0 +1,27 @@
+# Core Data Science Libraries
+pandas>=1.5.0
+numpy>=1.23.0
+scipy>=1.9.0
+
+# Machine Learning
+scikit-learn>=1.1.0
+imbalanced-learn>=0.9.0
+xgboost>=1.6.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.10.0
+
+# Jupyter Environment
+jupyterlab>=3.4.0
+ipywidgets>=8.0.0
+notebook>=6.4.0
+
+# Utilities
+tqdm>=4.64.0
+joblib>=1.1.0
+
+# Optional: Advanced ML
+optuna>=3.0.0
+shap>=0.41.0

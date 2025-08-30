@@ -1,309 +1,337 @@
-# Customer Churn Prediction - Complete ML Pipeline
-
-A comprehensive machine learning project to predict customer churn using multiple algorithms and advanced analysis techniques.
+# AI Project - Employee Turnover Prediction
 
 ## 🎯 Project Overview
 
-This project implements a complete machine learning pipeline for predicting customer churn, focusing on:
+This project is a comprehensive machine learning pipeline for predicting employee turnover using **Random Forest and XGBoost** algorithms. The project has been optimized to focus exclusively on these two high-performing tree-based models, providing automated model comparison, hyperparameter optimization, and comprehensive evaluation.
 
-- **Business Value**: Identify at-risk customers before they leave to reduce acquisition costs
-- **Technical Excellence**: Comprehensive ML pipeline with proper evaluation and comparison
-- **Scalability**: Modular design for easy extension and maintenance
+### Key Features
+- **Focused Algorithm Set**: Random Forest and XGBoost only for optimal performance
+- **Automated Model Selection**: Best model identification based on cross-validation scores
+- **Comprehensive Evaluation**: Multiple metrics with detailed performance analysis
+- **Organized Structure**: Clean project organization with dedicated directories
+- **JSON Outputs**: Structured results in JSON format for easy integration
+- **Validation Tools**: Comprehensive validation and debugging utilities
 
-## 🚀 Key Features
-
-### 🤖 Machine Learning Models
-- **Logistic Regression**: Fast baseline model
-- **Random Forest**: Robust ensemble method
-- **Gradient Boosting**: Advanced boosting algorithm
-- **XGBoost**: State-of-the-art gradient boosting
-
-### 🔧 Advanced Preprocessing
-- Automated feature type detection
-- Missing value imputation (multiple strategies)
-- Outlier detection and treatment
-- Feature scaling and normalization
-- Class imbalance handling (SMOTE, undersampling)
-
-### 📊 Comprehensive Evaluation
-- Multiple metrics (Accuracy, Precision, Recall, F1, ROC-AUC)
-- Cross-validation with stratified sampling
-- Learning curves and validation curves
-- Feature importance analysis
-- Model comparison and ranking
-
-### 📈 Rich Visualizations
-- Interactive plots with Plotly
-- ROC and Precision-Recall curves
-- Confusion matrices
-- Feature importance plots
-- Distribution analysis
-
-### ⚙️ Hyperparameter Optimization
-- Grid Search
-- Random Search
-- Optuna (Bayesian optimization)
-- Automated parameter tuning
-
-## 📁 Project Structure
+## 📁 Directory Structure
 
 ```
 AI-Project/
-├── 📖 README.md                       # This file
-├── 📦 requirements.txt                # Dependencies
-├── ⚙️ setup.py                       # Package configuration
-├── 🚀 main.py                        # Main pipeline script
-├── ⚡ quick_start.py                  # Quick demo script
-│
-├── data/                              # Data storage
+├── 📊 data/                          # Dataset storage
 │   ├── raw/                          # Original datasets
-│   ├── processed/                    # Cleaned data
-│   └── README.md                     # Data documentation
-│
-├── src/                              # Core source code
-│   ├── config.py                     # Configuration settings
-│   ├── data_loader.py               # Data loading utilities
-│   ├── exploratory_analysis.py      # EDA functions
-│   ├── feature_engineering.py       # Feature processing
-│   ├── model_trainer.py            # Model training
-│   ├── evaluator.py               # Model evaluation
-│   └── visualizer.py              # Visualization tools
-│
-├── utils/                           # Utility functions
-│   ├── helpers.py                  # General utilities
-│   ├── preprocessing.py           # Advanced preprocessing
-│   └── plotting.py               # Plotting utilities
-│
-├── notebooks/                      # Jupyter notebooks
+│   │   ├── employee_data.csv         # Primary training data (11,413 rows, 28 features)
+│   │   └── sample_customer_churn.csv # Alternative dataset
+│   └── processed/                    # Cleaned and engineered datasets
+│       ├── balanced_data.csv         # Class-balanced dataset
+│       ├── feature_engineered_data.csv # Final training dataset
+│       ├── feature_info.json         # Feature engineering metadata
+│       └── processed_data.csv        # Intermediate processed data
+├── 🤖 models/                        # Model artifacts (RF & XGBoost only)
+│   ├── random_forest_model.pkl      # Trained Random Forest
+│   ├── xgboost_model.pkl           # Trained XGBoost
+│   ├── best_parameters.pkl          # Optimal hyperparameters
+│   ├── evaluation_data.pkl          # Train/test splits
+│   ├── model_registry_rf_xgb.json   # Model metadata
+│   ├── random_forest/              # RF-specific files
+│   │   ├── feature_importance.json
+│   │   ├── hyperparameters.json
+│   │   ├── metrics.json
+│   │   └── model_info.md
+│   └── xgboost/                   # XGBoost-specific files
+│       ├── feature_importance.json
+│       ├── hyperparameters.json
+│       ├── metrics.json
+│       └── model_info.md
+├── 📄 json/                        # All JSON outputs
+│   ├── model_comparison.json       # RF vs XGBoost comparison
+│   ├── best_parameters.json       # Hyperparameters in JSON format
+│   ├── cv_results.json            # Cross-validation scores
+│   ├── model_summary.json         # Training summary
+│   ├── test_results.json          # Test evaluation metrics
+│   ├── random_forest_feature_importance.json
+│   └── xgboost_feature_importance.json
+├── 📈 results/                     # Training results and visualizations
+│   ├── figures/                   # Model performance plots
+│   │   ├── model_comparison.png   # Performance comparison chart
+│   │   ├── roc_curves.png         # ROC curves visualization
+│   │   └── target_distribution.png # Target variable distribution
+│   ├── reports/                   # Generated reports
+│   └── metrics/                   # Performance metrics
+├── 🔧 src/                        # Core modules (updated for RF & XGBoost)
+│   ├── __init__.py
+│   ├── config.py                 # Configuration (RF & XGBoost only)
+│   ├── model_trainer.py          # Training pipeline (restricted)
+│   ├── data_loader.py            # Data loading utilities
+│   ├── feature_engineering.py    # Feature engineering
+│   ├── evaluator.py              # Model evaluation
+│   └── visualizer.py             # Visualization tools
+├── 🚀 main/                       # Execution scripts
+│   ├── main.py                   # Full pipeline (RF & XGBoost)
+│   ├── rf_xgb_trainer.py         # Quick trainer script
+│   └── quick_start.py            # Simplified execution
+├── 🔍 validations/                # Validation and debugging scripts
+│   ├── __init__.py               # Package initialization
+│   ├── analyze_cv.py             # Cross-validation analysis
+│   ├── analyze_pkl_detailed.py   # Detailed PKL file analysis
+│   ├── analyze_pkl_files.py      # Basic PKL file analysis
+│   ├── check_regularization.py   # Regularization parameter analysis
+│   ├── debug_paths.py            # Path debugging utilities
+│   ├── debug_trainer.py          # ModelTrainer debugging
+│   ├── path_demo.py              # Path navigation demonstration
+│   ├── setup.py                  # Project setup script
+│   ├── simple_validation.py      # Simple validation tests
+│   ├── validate_restructure.py   # Complete project validation
+│   └── validation_output.txt     # Validation results log
+├── 🧪 Testing/                    # Unit tests and integration tests
+│   ├── test_paths.py             # Path testing utilities
+│   ├── test_01_string_formatting.py
+│   ├── test_02_model_trainer_return.py
+│   ├── test_03_fixed_wrapper.py
+│   ├── test_04_complete_validation.py
+│   └── ...
+├── 📓 notebooks/                  # Jupyter notebooks
 │   ├── 01_exploratory_analysis.ipynb
 │   ├── 02_feature_engineering.ipynb
 │   ├── 03_class_imbalance_analysis.ipynb
-│   ├── 04_model_training.ipynb
-│   └── 05_model_evaluation.ipynb
-│
-├── models/                         # Saved models
-│   ├── decision_tree/
-│   ├── random_forest/
-│   └── README.md
-│
-└── results/                       # Output results
-    ├── figures/                   # Generated plots
-    ├── reports/                   # Analysis reports
-    └── metrics/                   # Performance metrics
+│   ├── 04_model_training.ipynb      # RF & XGBoost focus
+│   ├── 05_model_evaluation.ipynb    # Comparison analysis
+│   └── 06_ModelTrainer_Fix_and_Integration.ipynb
+├── 🛠️ utils/                      # Utility functions
+│   ├── __init__.py
+│   ├── helpers.py
+│   ├── plotting.py
+│   └── preprocessing.py
+├── ✅ validation/                  # Legacy validation scripts
+└── 📋 Documentation/               # Project documentation
+    ├── README.md
+    └── requirements.txt
 ```
 
-## 🛠️ Installation & Setup
+## 🚀 Usage Instructions
 
-### 1. Clone the Repository
+### Quick Start (Recommended)
+
+#### Method 1: Quick Trainer Script
 ```bash
-git clone <repository-url>
-cd AI-Project
+# Quick training with default settings
+python main/rf_xgb_trainer.py
+
+# With custom data and optimization
+python main/rf_xgb_trainer.py --data-path data/raw/employee_data.csv --optimization random_search
 ```
 
-### 2. Create Virtual Environment (Recommended)
+#### Method 2: Full Pipeline
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Full pipeline with all steps
+python main/main.py --optimization random_search
+
+# Train specific models only
+python main/main.py --models random_forest xgboost
 ```
 
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Verify Installation
-```bash
-python quick_start.py
-```
-
-## 🚀 Quick Start
-
-### Option 1: Quick Demo (5 minutes)
-```bash
-python quick_start.py
-```
-This runs a complete example with synthetic data.
-
-### Option 2: Full Pipeline
-```bash
-python main.py --data-path your_data.csv
-```
-
-### Option 3: Custom Configuration
-```bash
-python main.py \
-    --data-path data/raw/customer_data.csv \
-    --optimization optuna \
-    --models random_forest xgboost \
-    --log-level INFO
-```
-
-## 📊 Usage Examples
-
-### Basic Model Training
+#### Method 3: Python Import
 ```python
-from src.model_trainer import ModelTrainer
+from main.rf_xgb_trainer import quick_train_rf_xgb
 
-# Initialize trainer
-trainer = ModelTrainer()
-
-# Train all models
-results = trainer.train_all_models(X_train, y_train)
-
-# Save models
-trainer.save_models()
-```
-
-### Model Evaluation
-```python
-from src.evaluator import ModelEvaluator
-
-# Initialize evaluator
-evaluator = ModelEvaluator()
-
-# Evaluate models
-results = evaluator.evaluate_multiple_models(
-    trainer.trained_models, X_test, y_test
+# Train and compare models
+results = quick_train_rf_xgb(
+    data_path='data/raw/employee_data.csv',
+    optimization='random_search'
 )
 
-# Generate report
-report = evaluator.generate_evaluation_report()
-print(report)
+# Access best model
+best_model = results['best_model']
+best_name = results['best_model_name']
 ```
 
-### Feature Engineering
-```python
-from src.feature_engineering import FeatureEngineer
+### Validation and Debugging
 
-# Initialize feature engineer
-engineer = FeatureEngineer()
-
-# Process features
-X_processed = engineer.fit_transform(X_raw)
-```
-
-## 📈 Expected Results
-
-The pipeline typically achieves:
-- **Accuracy**: 85-92%
-- **ROC-AUC**: 0.88-0.95
-- **F1-Score**: 0.82-0.90
-
-Performance varies based on:
-- Data quality and size
-- Feature engineering
-- Model selection
-- Hyperparameter tuning
-
-## 🔬 Advanced Features
-
-### Hyperparameter Optimization
+#### Run All Validations
 ```bash
-# Grid search
-python main.py --optimization grid_search
+# Complete project validation
+python -m validations.validate_restructure
 
-# Random search (recommended)
-python main.py --optimization random_search
-
-# Optuna (Bayesian optimization)
-python main.py --optimization optuna
+# Simple validation tests
+python -m validations.simple_validation
 ```
 
-### Custom Model Configuration
-Edit `src/config.py` to:
-- Add new models
-- Modify hyperparameter ranges
-- Change evaluation metrics
-- Adjust preprocessing options
-
-### Interactive Analysis
-Use Jupyter notebooks for detailed analysis:
+#### Analyze Project Components
 ```bash
-jupyter lab notebooks/
+# Cross-validation analysis
+python -m validations.analyze_cv
+
+# PKL file analysis (detailed)
+python -m validations.analyze_pkl_detailed
+
+# Regularization analysis
+python -m validations.check_regularization
+
+# Debug path issues
+python -m validations.debug_paths
+
+# Test ModelTrainer functionality
+python -m validations.debug_trainer
 ```
 
-## 📋 Command Line Options
-
+#### Path Navigation Demo
 ```bash
-python main.py [OPTIONS]
-
-Options:
-  --data-path PATH           Path to dataset file
-  --optimization METHOD      Optimization method [grid_search|random_search|optuna|default]
-  --models MODEL [MODEL...]  Specific models to train
-  --log-level LEVEL         Logging level [DEBUG|INFO|WARNING|ERROR]
-  --skip-eda                Skip exploratory data analysis
-  --help                    Show help message
+# Understand path navigation concepts
+python -m validations.path_demo
 ```
 
-## 🎯 Task Breakdown (9 Core Tasks)
+### Check Evaluation Results
 
-✅ **Task 1**: Import Libraries - Complete environment setup
-✅ **Task 2**: Exploratory Data Analysis - Comprehensive data exploration
-✅ **Task 3**: Encoding Categorical Variables - Advanced feature engineering
-✅ **Task 4**: Class Imbalance Analysis - Multiple balancing techniques
-✅ **Task 5**: Train/Validation Split - Stratified data splitting
-✅ **Task 6-7**: Decision Tree Implementation - With hyperparameter tuning
-✅ **Task 8**: Random Forest Implementation - Ensemble learning
-✅ **Task 9**: Model Evaluation - Comprehensive performance assessment
+#### JSON Results
+- **Model Comparison**: `json/model_comparison.json`
+- **Cross-Validation**: `json/cv_results.json`
+- **Test Results**: `json/test_results.json`
+- **Feature Importance**: `json/{model}_feature_importance.json`
 
-## 📊 Output Files
+#### Visualizations
+- **Performance Charts**: `results/figures/model_comparison.png`
+- **ROC Curves**: `results/figures/roc_curves.png`
+- **Target Distribution**: `results/figures/target_distribution.png`
 
-After running the pipeline, you'll find:
+#### Model Artifacts
+- **Best Model**: Automatically identified and saved
+- **Hyperparameters**: `models/best_parameters.pkl` and `json/best_parameters.json`
+- **Model Registry**: `models/model_registry_rf_xgb.json`
 
-- **Models**: `models/` - Trained model files (.pkl)
-- **Figures**: `results/figures/` - All visualizations (.png)
-- **Reports**: `results/reports/` - Evaluation reports (.txt)
-- **Metrics**: `results/metrics/` - Performance metrics (.json)
+## 📦 Dependencies
 
-## 🤝 Contributing
+### Core Requirements
+```txt
+pandas>=1.5.0
+numpy>=1.23.0
+scipy>=1.9.0
+scikit-learn>=1.1.0
+imbalanced-learn>=0.9.0
+xgboost>=1.6.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.10.0
+jupyterlab>=3.4.0
+ipywidgets>=8.0.0
+tqdm>=4.64.0
+joblib>=1.1.0
+optuna>=3.0.0
+shap>=0.41.0
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+### Installation
+```bash
+# Install from requirements file
+pip install -r requirements.txt
 
-## 📝 License
+# Or install from setup script
+python validations/setup.py install
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+# Or install in development mode
+pip install -e .
+```
+
+## 🎯 Model Configuration
+
+### Random Forest Hyperparameters
+- **n_estimators**: [100, 200, 300, 400, 500]
+- **max_depth**: [10, 20, 30, 40, None]
+- **min_samples_split**: [2, 5, 10, 15]
+- **min_samples_leaf**: [1, 2, 4, 8]
+- **max_features**: ['sqrt', 'log2', None]
+- **bootstrap**: [True, False]
+
+### XGBoost Hyperparameters
+- **n_estimators**: [100, 200, 300, 400, 500]
+- **learning_rate**: [0.01, 0.05, 0.1, 0.15, 0.2]
+- **max_depth**: [3, 4, 5, 6, 7, 8]
+- **subsample**: [0.8, 0.85, 0.9, 0.95, 1.0]
+- **colsample_bytree**: [0.8, 0.85, 0.9, 0.95, 1.0]
+- **reg_alpha**: [0, 0.01, 0.1, 0.5, 1.0] (L1 regularization)
+- **reg_lambda**: [0, 0.01, 0.1, 0.5, 1.0] (L2 regularization)
+
+## 🔄 Cross-Validation & Regularization
+
+### Cross-Validation Setup
+- **Method**: 5-fold StratifiedKFold
+- **Scoring**: ROC-AUC (primary), F1-score (secondary)
+- **Iterations**: 100 (RandomizedSearchCV)
+- **Parallel Processing**: Full CPU utilization
+- **Random State**: Fixed for reproducibility
+
+### Regularization Techniques
+- **Random Forest**: Tree depth limits, sample splits, bootstrap sampling
+- **XGBoost**: L1/L2 regularization, subsampling, column sampling
+- **Early Stopping**: Prevented through proper validation
+
+## 📊 Performance Metrics
+
+Both models are evaluated using:
+- **Accuracy**: Overall prediction correctness
+- **Precision**: True positive rate (weighted average)
+- **Recall**: Sensitivity (weighted average)
+- **F1-Score**: Harmonic mean of precision/recall
+- **ROC-AUC**: Area under ROC curve
+- **Cross-Validation Score**: 5-fold CV performance
+
+## 🏆 Model Selection Criteria
+
+1. **Primary**: Cross-validation ROC-AUC score
+2. **Secondary**: Test set F1-score
+3. **Tertiary**: Test set accuracy
+4. **Considerations**: Training time, interpretability, feature importance
+
+## 📋 Output Storage
+
+### Models Directory
+- **Trained Models**: `{model_name}_model.pkl`
+- **Hyperparameters**: `best_parameters.pkl`
+- **Evaluation Data**: `evaluation_data.pkl`
+- **Model-Specific**: `{model_name}/` subdirectories
+
+### JSON Directory
+- **All Results**: Structured JSON format
+- **Feature Importance**: Per-model feature rankings
+- **Comparison Data**: Model performance comparisons
+- **Metadata**: Training configuration and timestamps
+
+### Results Directory
+- **Visualizations**: `figures/` subdirectory
+- **Reports**: Generated analysis reports
+- **Metrics**: Detailed performance metrics
+
+## 🔧 Notes
+
+### Validation Scripts
+- All validation and debug scripts are now organized under `validations/`
+- Use Python module syntax: `python -m validations.script_name`
+- Scripts are self-contained with proper path handling
+- Comprehensive validation available via `validate_restructure.py`
+
+### Path Handling
+- All scripts use relative imports and proper path resolution
+- Project root is automatically detected using `Path(__file__).parent.parent`
+- No hardcoded paths - fully portable across environments
+- Import issues resolved through proper `sys.path` management
+
+### Project Structure
+- **Organized**: Clear separation of concerns across directories
+- **Scalable**: Easy to add new models or validation scripts
+- **Maintainable**: Consistent structure and naming conventions
+- **Documented**: Comprehensive documentation and examples
 
 ## 🆘 Troubleshooting
 
 ### Common Issues
-
-1. **Import Errors**: Ensure all dependencies are installed
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Data Loading Issues**: Check data file path and format
-   ```python
-   # Verify data format
-   import pandas as pd
-   df = pd.read_csv('your_data.csv')
-   print(df.info())
-   ```
-
-3. **Memory Issues**: For large datasets, use data sampling
-   ```bash
-   python main.py --data-path large_dataset.csv --sample-size 10000
-   ```
+1. **Import Errors**: Ensure you're running scripts from project root
+2. **Path Issues**: Use `python -m validations.debug_paths` to check paths
+3. **Model Issues**: Use `python -m validations.debug_trainer` to test models
+4. **Validation Errors**: Run `python -m validations.validate_restructure` for full check
 
 ### Getting Help
-
-- Check the documentation in `docs/`
-- Review example notebooks
-- Run `python quick_start.py` for basic example
-- Open an issue on GitHub
-
-## 🙏 Acknowledgments
-
-- Scikit-learn for machine learning algorithms
-- Plotly for interactive visualizations
-- Optuna for hyperparameter optimization
-- The open-source community for inspiration
+- Check validation outputs in `validations/validation_output.txt`
+- Run individual validation scripts for specific issues
+- Review JSON outputs for detailed results
+- Check model artifacts in `models/` directory
 
 ---
 
-**Ready to predict customer churn? Start with `python quick_start.py`! 🚀**
+**Last Updated**: Project restructured with dedicated `validations/` directory and comprehensive documentation.
