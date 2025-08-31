@@ -1,4 +1,4 @@
-# AI Project - Employee Turnover Prediction
+Employee Turnover Prediction
 
 ## 🎯 Project Overview
 
