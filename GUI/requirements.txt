@@ -1,0 +1,17 @@
+# GUI Requirements for Employee Churn Prediction App
+# Core Streamlit and dependencies
+streamlit>=1.28.0
+plotly>=5.15.0
+pandas>=1.5.0
+numpy>=1.23.0
+scikit-learn>=1.1.0
+xgboost>=1.6.0
+joblib>=1.1.0
+
+# Optional for enhanced functionality
+scipy>=1.9.0
+seaborn>=0.11.0  # For fallback visualizations
+matplotlib>=3.5.0  # For fallback visualizations
+
+# Additional utilities
+pathlib2>=2.3.0  # For better path handling on older systems
